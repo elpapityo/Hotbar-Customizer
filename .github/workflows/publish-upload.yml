@@ -39,30 +39,33 @@ jobs:
         run: |
           set -euo pipefail
           test -s "$ZIP"
-          unzip -l "$ZIP" | grep -q 'HotbarVisualProbe.dll'
-          unzip -l "$ZIP" | grep -q 'HotbarVisualProbe.json'
-          unzip -l "$ZIP" | grep -q 'images/icon.png'
-          unzip -p "$ZIP" HotbarVisualProbe.json > /tmp/HotbarVisualProbe.json
           python3 - <<'PY'
-          import json, os
-          with open('/tmp/HotbarVisualProbe.json', encoding='utf-8-sig') as f:
-              manifest = json.load(f)
-          expected = os.environ['VERSION'] + '.0'
-          actual = manifest.get('AssemblyVersion')
-          if actual != expected:
-              raise SystemExit(f'AssemblyVersion mismatch: ZIP={actual!r}, filename={expected!r}')
-          print(f'Verified AssemblyVersion: {actual}')
-          PY
+          import json, os, zipfile
 
-      - name: Sync icon from package
-        shell: bash
-        env:
-          ZIP: ${{ steps.pkg.outputs.zip }}
-        run: |
-          set -euo pipefail
-          mkdir -p images
-          unzip -p "$ZIP" images/icon.png > images/icon.png
-          test -s images/icon.png
+          zip_path = os.environ['ZIP']
+          version = os.environ['VERSION']
+
+          with zipfile.ZipFile(zip_path) as z:
+              names = z.namelist()
+              normalized = {name.replace('\\', '/'): name for name in names}
+              required = ['HotbarVisualProbe.dll', 'HotbarVisualProbe.json', 'images/icon.png']
+              missing = [name for name in required if name not in normalized]
+              if missing:
+                  raise SystemExit(f'Missing required files: {missing}')
+
+              manifest = json.loads(z.read(normalized['HotbarVisualProbe.json']).decode('utf-8-sig'))
+              expected = version + '.0'
+              actual = manifest.get('AssemblyVersion')
+              if actual != expected:
+                  raise SystemExit(f'AssemblyVersion mismatch: ZIP={actual!r}, filename={expected!r}')
+
+              os.makedirs('images', exist_ok=True)
+              with open('images/icon.png', 'wb') as f:
+                  f.write(z.read(normalized['images/icon.png']))
+
+          print(f'Verified AssemblyVersion: {actual}')
+          print('Verified and extracted images/icon.png')
+          PY
 
       - name: Sync pluginmaster and version
         shell: bash
