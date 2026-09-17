@@ -102,10 +102,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if ! git diff --quiet -- pluginmaster.json VERSION.txt images/icon.png; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add pluginmaster.json VERSION.txt images/icon.png
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pluginmaster.json VERSION.txt images/icon.png
+          if ! git diff --cached --quiet; then
             git commit -m "Sync Hotbar Customizer release files"
             git push
           else
