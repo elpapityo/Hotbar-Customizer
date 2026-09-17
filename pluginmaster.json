@@ -4,7 +4,7 @@
     "Name": "Hotbar Customizer",
     "Punchline": "FF14標準ホットバーのアイコンを好きな画像に着せ替えます。",
     "Description": "標準ホットバー/XHBの中身を識別して、PNG/JPG画像を表示だけ差し替えます。スロットを移動しても設定は中身へ追従し、ホットバーやマクロの保存データは変更しません。",
-    "InternalName": "HotbarCustomizer",
+    "InternalName": "HotbarVisualProbe",
     "AssemblyVersion": "0.1.0.0",
     "TestingAssemblyVersion": "0.1.0.0",
     "ApplicableVersion": "any",
