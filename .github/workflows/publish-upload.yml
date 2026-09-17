@@ -48,17 +48,17 @@ jobs:
           with zipfile.ZipFile(zip_path) as z:
               names = z.namelist()
               normalized = {name.replace('\\', '/'): name for name in names}
-              required = ['HotbarCustomizer.dll', 'HotbarCustomizer.json', 'images/icon.png']
+              required = ['HotbarVisualProbe.dll', 'HotbarVisualProbe.json', 'images/icon.png']
               missing = [name for name in required if name not in normalized]
               if missing:
                   raise SystemExit(f'Missing required files: {missing}')
 
-              manifest = json.loads(z.read(normalized['HotbarCustomizer.json']).decode('utf-8-sig'))
+              manifest = json.loads(z.read(normalized['HotbarVisualProbe.json']).decode('utf-8-sig'))
               expected = version + '.0'
               actual = manifest.get('AssemblyVersion')
               if actual != expected:
                   raise SystemExit(f'AssemblyVersion mismatch: ZIP={actual!r}, filename={expected!r}')
-              if manifest.get('InternalName') != 'HotbarCustomizer':
+              if manifest.get('InternalName') != 'HotbarVisualProbe':
                   raise SystemExit(f"InternalName mismatch: {manifest.get('InternalName')!r}")
 
               os.makedirs('images', exist_ok=True)
@@ -66,7 +66,7 @@ jobs:
                   f.write(z.read(normalized['images/icon.png']))
 
           print(f'Verified AssemblyVersion: {actual}')
-          print('Verified InternalName: HotbarCustomizer')
+          print('Verified InternalName: HotbarVisualProbe')
           print('Verified and extracted images/icon.png')
           PY
 
@@ -90,7 +90,7 @@ jobs:
           if not isinstance(data, list) or not data:
               raise SystemExit('pluginmaster.json must contain a non-empty JSON array')
           entry = data[0]
-          entry['InternalName'] = 'HotbarCustomizer'
+          entry['InternalName'] = 'HotbarVisualProbe'
           entry['AssemblyVersion'] = assembly
           entry['TestingAssemblyVersion'] = assembly
           entry['DownloadLinkInstall'] = url
@@ -99,7 +99,7 @@ jobs:
           entry['IconUrl'] = icon
           path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           Path('VERSION.txt').write_text(version + '\n', encoding='utf-8')
-          print(f'Synced metadata -> HotbarCustomizer {assembly}')
+          print(f'Synced metadata -> HotbarVisualProbe {assembly}')
           PY
 
       - name: Commit synchronized files
